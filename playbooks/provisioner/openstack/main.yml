@@ -94,22 +94,24 @@
               results: "{{ provisioner.network.network_list.values() }}"
 
     - name: Create nodes
-      nova_compute:
-           auth_url: "{{ provisioner.auth_url }}"
+      os_server:
+           auth:
+             auth_url: "{{ provisioner.auth_url }}"
+             username: "{{ provisioner.username }}"
+             password: "{{ provisioner.password }}"
+             project_name: "{{ provisioner.tenant_name }}"
+
            state: present
-           login_username: "{{ provisioner.username }}"
-           login_password: "{{ provisioner.password }}"
-           login_tenant_name: "{{ provisioner.tenant_name }}"
            name: "{{ item.value.name }}"
-           image_id: "{{ item.value.image_id }}"
+           image: "{{ item.value.image_id }}"
            key_name: "{{ provisioner.key_name }}"
-           flavor_id: "{{ item.value.flavor_id }}"
+           flavor: "{{ item.value.flavor_id }}"
            nics:
               - net-id: "{{ networks.results.0.id }}"
               - net-id: "{{ networks.results.1.id }}"
               - net-id: "{{ networks.results.2.id }}"
            config_drive: True
-           auto_floating_ip: "{{ provisioner.network.use_floating_ip | default(omit) }}"
+           auto_ip: "{{ provisioner.network.use_floating_ip | default(omit) }}"
            wait_for: 800
              # our library/nova_compute will retry booting new servers
              # in case of errors, until it reaches 'wait_for' seconds timelimit
